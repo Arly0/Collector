@@ -40,14 +40,16 @@ const   gulp    = require('gulp'),
 
     // ! JS
     gulp.task('js', function(){
-        return gulp.src('src/js/**/*.js')
+        return gulp.src('src/js/*.js')
             .pipe(sMaps.init())
                 .pipe(babel({
                     presets: ['@babel/env']
                 }))
                 .pipe(uglify())
+                // TODO idk why rename now dont work HERE. Need to fix
                 .pipe(rename({
-                    sufix: '.min'
+                    sufix: '.min',
+                    prefix: '',
                 }))
             .pipe(sMaps.write())
             .pipe(gulp.dest('build/js'))
@@ -70,10 +72,16 @@ const   gulp    = require('gulp'),
             .pipe(gulp.dest('build/css'))
     });
 
-    // ! HTML / PHP
-    gulp.task('html', function(){
-        return gulp.src('src/*.php')
+    // ! HTML / PHP -- TEMPLATE
+    gulp.task('html_t', function(){
+        return gulp.src('src/template/*.php')
             .pipe(gulp.dest('build/'))
+    });
+
+    // ! HTML / PHP -- STATIC
+    gulp.task('html_st', function(){
+        return gulp.src('src/static/*.php')
+            .pipe(gulp.dest('build/static/'))
     });
 
     // ! IMAGES
@@ -100,7 +108,8 @@ const   gulp    = require('gulp'),
 
     // ! watch
     gulp.task('watch', function(){
-        gulp.watch(['src/*.php'], gulp.series('html'));
+        gulp.watch(['src/tamplate/*.php'], gulp.series('html_t'));
+        gulp.watch(['src/static/*.php'], gulp.series('html_st'));
         gulp.watch(['src/sass/*.sass'], gulp.series('sass'));
         gulp.watch(['src/js/*.js'], gulp.series('js'));
         gulp.watch(['src/libs/**/*.js'], gulp.series('libsJS'));
@@ -111,12 +120,12 @@ const   gulp    = require('gulp'),
 
     // ! default runing withOUT server
     gulp.task('default', gulp.series(
-        gulp.parallel('html', 'sass','js', 'libsJS', 'libsCSS', 'images', 'fonts'),
+        gulp.parallel('html_st', 'html_t', 'sass','js', 'libsJS', 'libsCSS', 'images', 'fonts'),
         gulp.parallel('watch')
     ));
 
     // ! default runing with server
     gulp.task('server-defalut', gulp.series(
-        gulp.parallel('html', 'sass','js', 'libsJS', 'libsCSS', 'images', 'fonts'),
+        gulp.parallel('html_st', 'html_t', 'sass','js', 'libsJS', 'libsCSS', 'images', 'fonts'),
         gulp.parallel('watch', 'server')
     ));
